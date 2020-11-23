@@ -4,7 +4,7 @@ import Auxilary from '../../hoc/Auxilary';
 import Burger from '../../components/Burger/Burger';
 import BuildControls from '../../components/Burger/BuildControls/BuildControls';
 import Modal from '../../components/UI/Modal/Modal';
-import OrderSummary from '../../components/OrderSummary/OrderSummary';
+import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
 import axios from '../../axios-order';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
@@ -86,23 +86,20 @@ class BurgerBuilder extends Component {
     }
 
     purchaseContinueHandler = () => {
-        this.setState({loading:true})
-        const order = {
-            ingredient: this.state.ingredients,
-            totalprice: this.state.totalPrice,
-            customer: {
-                name: "Shekhar Pratap Singh",
-                address: {
-                    street: "BTM 2nd stage"
-                },
-                email: "shekharpratapsingh26@gmail.com"
-            },
-            deliveryMethod: "fastest"
-        };
+       
+        const queryparams = []
+        for (let i in this.state.ingredients) {
+            queryparams.push(encodeURIComponent(i)+'='+encodeURIComponent(this.state.ingredients[i]))
+        }
 
-        axios.post('/orders.json', order)
-            .then(response => this.setState({loading:false,purchasing:false}))
-            .catch(err => this.setState({loading:false,purchasing:false}));
+        queryparams.push('price=' + this.state.totalPrice)
+
+        const querystring = queryparams.join('&');
+
+        this.props.history.push({
+            pathname: '/checkout',
+            search: '?' + querystring
+        })
     }
 
     render () {
@@ -130,7 +127,10 @@ class BurgerBuilder extends Component {
                 </Auxilary>
            
             );
-            orderSummary = <OrderSummary 
+
+            orderSummary =
+                
+                <OrderSummary 
             ingredients={this.state.ingredients}
             price={this.state.totalPrice}
             purchaseCancelled={this.purchaseCancelHandler}
